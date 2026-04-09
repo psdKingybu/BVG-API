@@ -6,7 +6,7 @@ import threading
 
 #200 Bus 900110522
 #M4 Bahn 900110521
-STOP_ID = "900110521"
+STOP_ID = "900110522"
 STOPS_AMOUNT = 3
 
 def fetch_data():
@@ -28,13 +28,16 @@ def fetch_data():
 
                 try:
                     dt = datetime.fromisoformat(actual)
-                    minutes = int((dt - datetime.now(timezone.utc)).total_seconds() / 60)
+                    minutes = max(0, int((dt - datetime.now(timezone.utc)).total_seconds() / 60))
                 except:
                     minutes = "?"
 
                 root.after(0, lambda l=Linelabel, v=line: l.config(text=v))
                 root.after(0, lambda l=Directionlabel, v=direction: l.config(text=v))
-                root.after(0, lambda l=Timelabel, v=minutes: l.config(text="now" if v == 0 else f"{v} min"))
+                root.after(0, lambda l=Timelabel, d=(int(delay / 60)), v=minutes: l.config(text="now" if v + d <= 0 else f"{v + d} min"))
+                print(f"{line} {direction} {minutes} + {int(delay / 60)}")
+                print("---")
+
 
     except Exception as e:
         print(f"Error fetching data: {e}")
